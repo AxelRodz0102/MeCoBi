@@ -1,0 +1,97 @@
+---
+title: "Trabajo_final"
+author: "Axel Leon"
+date: "12/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(tidyverse)
+library(gt)
+library(cumstats)
+library(sjPlot)
+
+#names(COVID)
+
+```
+
+```{r}
+#head(owid_covid_data)
+#COVID<-owid_covid_data
+#head(COVID)
+COVID <- read_csv("Trabajo_final/owid-covid-data.csv")
+
+COVID_PR<-COVID %>%
+  select(iso_code,continent, location, date, total_cases, total_deaths, positive_rate, total_vaccinations, people_fully_vaccinated, total_boosters, new_cases)%>%
+  filter(location == "United States")
+
+tail(COVID_PR)
+```
+
+
+```{r}
+hist(COVID_PR$new_cases, main = "Casos de COVID-19 en los Estados Unidos", xlab = "Casos Nuevos", ylab = "Frecuencia")
+```
+
+```{r}
+
+COVID_PR%>%
+ggplot(aes(x= date, y=total_cases), colour = "blue")+
+  geom_point()+
+  geom_smooth(method = "lm")+
+  labs(
+  title = "Casos totales de COVID 19 en Estados Unidos",
+  subtitle = "Grafica 1",
+  caption = waiver(),
+  tag = waiver(),
+  alt = waiver(),
+  alt_insight = waiver()
+)+
+  ylab("Personas infectadas")+
+  xlab("Fecha")
+  
+  
+
+regr1 <- lm(total_deaths ~ total_cases, data = COVID_PR)
+coefficients(regr1)
+summary(regr1)
+par(mfrow=c(2,2))
+plot(regr1)
+  
+```
+
+
+```{r}
+COVID_PR%>%
+  ggplot(aes(x= date, y=total_cases))+
+geom_point(aes(x=date, y=people_fully_vaccinated), colour= "black")+
+  geom_smooth(method = "lm")
+
+regr2 <- lm(total_deaths ~ new_cases, data = COVID_PR)
+coefficients(regr2)
+summary(regr2)
+par(mfrow=c(2,2))
+plot(regr2)
+
+
+COVID_PR%>%
+  ggplot()+
+  geom_line(aes(x=date, total_cases), colour = "blue")+
+  geom_line(aes(x=date, y= people_fully_vaccinated), colour= "red")+
+   labs(
+  title = "Relacion entre casos totales y vacunaciones",
+  subtitle = "Grafica 3",
+  caption = waiver(),
+  tag = waiver(),
+  alt = waiver(),
+  alt_insight = waiver()
+)+
+  ylab("Personas")+
+  xlab("Fecha")
+  
+```
+
